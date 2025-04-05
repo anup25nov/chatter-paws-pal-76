@@ -1,6 +1,7 @@
 
 import { useState, useEffect } from 'react';
 import ThemeToggle from './ThemeToggle';
+import { Link } from 'react-router-dom';
 
 const Header = () => {
   const [scrolled, setScrolled] = useState(false);
@@ -20,16 +21,16 @@ const Header = () => {
     }`}>
       <div className="container flex items-center justify-between h-16 px-4">
         <div className="flex items-center space-x-2">
-          <span className="text-2xl font-bold bg-gradient-to-r from-primary to-accent bg-clip-text text-transparent">
+          <Link to="/" className="text-2xl font-bold bg-gradient-to-r from-primary to-accent bg-clip-text text-transparent">
             DevxTools
-          </span>
+          </Link>
           <span className="bg-primary/10 text-primary px-1.5 py-0.5 text-xs font-medium rounded">
-            JSON
+            DEV
           </span>
         </div>
         <div className="flex items-center space-x-4">
           <div className="text-sm text-muted-foreground hidden md:block">
-            Professional JSON Tools
+            Professional Developer Tools
           </div>
           <ThemeToggle />
         </div>

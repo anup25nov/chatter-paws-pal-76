@@ -7,10 +7,12 @@ import { BrowserRouter, Routes, Route } from "react-router-dom";
 import Index from "./pages/Index";
 import NotFound from "./pages/NotFound";
 import JsonFormatter from "./pages/JsonFormatter";
-import JsonValidator from "./pages/JsonValidator";
-import JsonMinifier from "./pages/JsonMinifier";
-import JsonToCsv from "./pages/JsonToCsv";
 import JsonToXml from "./pages/JsonToXml";
+import JwtDecoder from "./pages/JwtDecoder";
+import Base64Tool from "./pages/Base64Tool";
+import JsonDiffViewer from "./pages/JsonDiffViewer";
+import YamlJsonConverter from "./pages/YamlJsonConverter";
+import JsonQuery from "./pages/JsonQuery";
 
 const queryClient = new QueryClient();
 
@@ -23,11 +25,12 @@ const App = () => (
         <Routes>
           <Route path="/" element={<Index />} />
           <Route path="/json-formatter" element={<JsonFormatter />} />
-          <Route path="/json-validator" element={<JsonValidator />} />
-          <Route path="/json-minifier" element={<JsonMinifier />} />
-          <Route path="/json-to-csv" element={<JsonToCsv />} />
+          <Route path="/jwt-decoder" element={<JwtDecoder />} />
+          <Route path="/base64" element={<Base64Tool />} />
           <Route path="/json-to-xml" element={<JsonToXml />} />
-          {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
+          <Route path="/json-diff" element={<JsonDiffViewer />} />
+          <Route path="/yaml-json" element={<YamlJsonConverter />} />
+          <Route path="/json-query" element={<JsonQuery />} />
           <Route path="*" element={<NotFound />} />
         </Routes>
       </BrowserRouter>

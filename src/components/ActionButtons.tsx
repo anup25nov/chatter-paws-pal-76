@@ -2,12 +2,12 @@
 import { Button } from '@/components/ui/button';
 import { Copy, Check, FileCode, AlertCircle, FileText } from 'lucide-react';
 import { useState } from 'react';
-import { useToast } from '@/components/ui/use-toast';
+import { useToast } from '@/hooks/use-toast';
 
 interface ActionButtonsProps {
   onPrettyPrint: () => void;
   onValidate: () => void;
-  onMinify: () => void;
+  onMinify?: () => void;
   outputJson: string;
   isJsonValid: boolean;
   primaryButtonText?: string;
@@ -53,33 +53,36 @@ const ActionButtons = ({
   };
 
   return (
-    <div className="flex flex-wrap gap-2">
+    <div className="flex flex-wrap gap-3">
       <Button
         onClick={onPrettyPrint}
         disabled={!isJsonValid}
-        className="bg-primary hover:bg-primary/90 text-primary-foreground"
+        className="bg-primary hover:bg-primary/90 text-primary-foreground font-medium"
+        size="lg"
       >
-        <FileCode className="mr-2 h-4 w-4" />
+        <FileCode className="mr-2 h-5 w-5" />
         {primaryButtonText}
       </Button>
       
       <Button
         onClick={onValidate}
         variant="outline"
-        className="bg-card hover:bg-muted"
+        className="bg-card hover:bg-muted font-medium"
+        size="lg"
       >
-        <AlertCircle className="mr-2 h-4 w-4" />
+        <AlertCircle className="mr-2 h-5 w-5" />
         Validate
       </Button>
       
-      {primaryButtonText !== "Minify JSON" && (
+      {onMinify && primaryButtonText !== "Minify JSON" && (
         <Button
           onClick={onMinify}
           disabled={!isJsonValid}
           variant="outline"
-          className="bg-card hover:bg-muted"
+          className="bg-card hover:bg-muted font-medium"
+          size="lg"
         >
-          <FileText className="mr-2 h-4 w-4" />
+          <FileText className="mr-2 h-5 w-5" />
           Minify
         </Button>
       )}
@@ -88,16 +91,17 @@ const ActionButtons = ({
         onClick={copyToClipboard}
         disabled={!outputJson}
         variant={copied ? "default" : "secondary"}
-        className={copied ? "bg-success hover:bg-success/90 text-success-foreground" : ""}
+        className={copied ? "bg-success hover:bg-success/90 text-success-foreground font-medium" : "font-medium"}
+        size="lg"
       >
         {copied ? (
           <>
-            <Check className="mr-2 h-4 w-4" />
+            <Check className="mr-2 h-5 w-5" />
             Copied!
           </>
         ) : (
           <>
-            <Copy className="mr-2 h-4 w-4" />
+            <Copy className="mr-2 h-5 w-5" />
             Copy
           </>
         )}

@@ -1,86 +1,90 @@
 
-import { useState, useEffect } from 'react';
+import { useState } from 'react';
 import { Link } from 'react-router-dom';
 import Header from '@/components/Header';
 import JsonInput from '@/components/JsonInput';
 import OutputDisplay from '@/components/OutputDisplay';
 import ActionButtons from '@/components/ActionButtons';
-import ErrorDisplay from '@/components/ErrorDisplay';
 import HeaderAd from '@/components/ads/HeaderAd';
 import SidebarAd from '@/components/ads/SidebarAd';
 import Footer from '@/components/Footer';
-import { prettyPrintJson, validateJson, minifyJson, JsonError } from '@/utils/jsonUtils';
 import { useToast } from '@/hooks/use-toast';
 import { ResizablePanelGroup, ResizablePanel, ResizableHandle } from '@/components/ui/resizable';
 
-const JsonFormatter = () => {
-  const [inputJson, setInputJson] = useState('');
+const JwtDecoder = () => {
+  const [inputToken, setInputToken] = useState('');
   const [outputJson, setOutputJson] = useState('');
-  const [error, setError] = useState<JsonError | undefined>(undefined);
-  const [warningError, setWarningError] = useState<JsonError | undefined>(undefined);
-  const [isJsonValid, setIsJsonValid] = useState(false);
+  const [isTokenValid, setIsTokenValid] = useState(false);
   const { toast } = useToast();
-  const location = useLocation();
 
-  useEffect(() => {
-    if (inputJson.trim()) {
-      const result = validateJson(inputJson);
-      setIsJsonValid(result.success);
-      
-      if (!result.success) {
-        setError(result.error);
-      } else {
-        setError(undefined);
+  // Simple JWT validation - checks format only
+  const validateToken = (token: string): boolean => {
+    const parts = token.split('.');
+    return parts.length === 3;
+  };
+
+  // Decode JWT without verification
+  const decodeJwt = (token: string) => {
+    try {
+      if (!validateToken(token)) {
+        toast({
+          title: "Invalid JWT Format",
+          description: "Token should have three parts separated by dots",
+          variant: "destructive"
+        });
+        return null;
       }
-    } else {
-      setIsJsonValid(false);
-      setError(undefined);
-      setWarningError(undefined);
-    }
-  }, [inputJson]);
 
-  const handlePrettyPrint = () => {
-    const result = prettyPrintJson(inputJson, true);
-    handleJsonResult(result);
+      const parts = token.split('.');
+      const header = JSON.parse(atob(parts[0]));
+      const payload = JSON.parse(atob(parts[1]));
+      
+      // Format result
+      const result = {
+        header,
+        payload,
+        signature: parts[2]
+      };
+      
+      return JSON.stringify(result, null, 2);
+    } catch (error) {
+      toast({
+        title: "Decoding Failed",
+        description: "Could not decode the JWT token",
+        variant: "destructive"
+      });
+      return null;
+    }
+  };
+
+  const handleInputChange = (value: string) => {
+    setInputToken(value);
+    setIsTokenValid(validateToken(value.trim()));
+  };
+
+  const handleDecode = () => {
+    const decodedToken = decodeJwt(inputToken.trim());
+    if (decodedToken) {
+      setOutputJson(decodedToken);
+      toast({
+        title: "JWT Decoded",
+        description: "Token decoded successfully"
+      });
+    } else {
+      setOutputJson('');
+    }
   };
 
   const handleValidate = () => {
-    const result = validateJson(inputJson, true);
-    if (result.success) {
-      setError(undefined);
-      setOutputJson('JSON is valid! 👍');
+    if (validateToken(inputToken.trim())) {
       toast({
-        title: "Validation Successful",
-        description: "Your JSON is valid and well-formed"
+        title: "Valid JWT Format",
+        description: "The token has the correct format (note: signature is not verified)"
       });
     } else {
-      setWarningError(undefined);
-      setError(result.error);
-      setOutputJson('');
       toast({
-        title: "Validation Failed",
-        description: result.error?.message || "Invalid JSON",
-        variant: "destructive"
-      });
-    }
-  };
-
-  const handleMinify = () => {
-    const result = minifyJson(inputJson, true);
-    handleJsonResult(result);
-  };
-
-  const handleJsonResult = (result: any) => {
-    if (result.success) {
-      setOutputJson(result.result || '');
-      setError(undefined);
-    } else {
-      setOutputJson('');
-      setWarningError(undefined);
-      setError(result.error);
-      toast({
-        title: "Action Failed",
-        description: result.error?.message || "An error occurred",
+        title: "Invalid JWT Format",
+        description: "Token should have three parts separated by dots",
         variant: "destructive"
       });
     }
@@ -94,10 +98,10 @@ const JsonFormatter = () => {
         <div className="mx-auto">
           <section className="mb-8">
             <h1 className="text-3xl md:text-4xl font-bold mb-2 bg-gradient-to-r from-primary to-accent bg-clip-text text-transparent">
-              DevxTools JSON Formatter
+              DevxTools JWT Decoder
             </h1>
             <p className="text-muted-foreground mb-4 text-lg">
-              Format, validate, and minify your JSON with a professional developer tool
+              Decode and inspect JSON Web Tokens (JWT)
             </p>
             
             <HeaderAd />
@@ -111,8 +115,8 @@ const JsonFormatter = () => {
               >
                 <ResizablePanel defaultSize={50} minSize={30}>
                   <div className="p-4 h-full">
-                    <h3 className="text-lg font-medium mb-3">Input JSON</h3>
-                    <JsonInput value={inputJson} onChange={setInputJson} />
+                    <h3 className="text-lg font-medium mb-3">JWT Token</h3>
+                    <JsonInput value={inputToken} onChange={handleInputChange} placeholder="Paste your JWT token here..." />
                   </div>
                 </ResizablePanel>
                 
@@ -120,27 +124,19 @@ const JsonFormatter = () => {
                 
                 <ResizablePanel defaultSize={50} minSize={30}>
                   <div className="p-4 h-full flex flex-col">
-                    <h3 className="text-lg font-medium mb-3">Result</h3>
+                    <h3 className="text-lg font-medium mb-3">Decoded Token</h3>
                     <div className="mb-4">
                       <ActionButtons 
-                        onPrettyPrint={handlePrettyPrint}
+                        onPrettyPrint={handleDecode}
                         onValidate={handleValidate}
-                        onMinify={handleMinify}
                         outputJson={outputJson}
-                        isJsonValid={isJsonValid}
+                        isJsonValid={isTokenValid}
+                        primaryButtonText="Decode Token"
                       />
                     </div>
                     
-                    {warningError && (
-                      <ErrorDisplay error={warningError} jsonInput={inputJson} warningOnly={true} />
-                    )}
-                    
-                    {error && (
-                      <ErrorDisplay error={error} jsonInput={inputJson} />
-                    )}
-                    
                     <div className="flex-grow">
-                      <OutputDisplay json={outputJson} hasError={!!error} />
+                      <OutputDisplay json={outputJson} jwt={true} />
                     </div>
                   </div>
                 </ResizablePanel>
@@ -153,10 +149,10 @@ const JsonFormatter = () => {
               <div className="bg-card rounded-lg p-4 border border-border mb-6">
                 <h3 className="text-base font-medium mb-3">Developer Tools</h3>
                 <ul className="text-base space-y-3 text-muted-foreground">
-                  <li className="hover:text-foreground transition-colors font-medium text-foreground">
+                  <li className="hover:text-foreground transition-colors">
                     <Link to="/json-formatter">JSON Formatter</Link>
                   </li>
-                  <li className="hover:text-foreground transition-colors">
+                  <li className="hover:text-foreground transition-colors font-medium text-foreground">
                     <Link to="/jwt-decoder">JWT Decoder</Link>
                   </li>
                   <li className="hover:text-foreground transition-colors">
@@ -180,28 +176,28 @@ const JsonFormatter = () => {
           </div>
           
           <section className="mt-8 bg-card rounded-lg p-6 border border-border">
-            <h2 className="text-xl font-semibold mb-4">About JSON Formatter</h2>
+            <h2 className="text-xl font-semibold mb-4">About JWT Decoder</h2>
             <p className="mb-4 text-base">
-              DevxTools provides professional-grade utilities for developers. Our JSON formatter helps you 
-              quickly beautify, validate, and optimize your JSON data with a clean interface.
+              JSON Web Tokens (JWT) are an open standard for securely transmitting information between parties as a JSON object. 
+              This tool helps you decode JWT tokens to inspect their header and payload contents.
             </p>
             <div className="grid grid-cols-1 md:grid-cols-3 gap-4 text-base">
               <div className="bg-muted/30 p-4 rounded-md">
-                <h3 className="font-medium mb-2">Format</h3>
+                <h3 className="font-medium mb-2">Decode</h3>
                 <p className="text-muted-foreground">
-                  Make your JSON beautiful with proper indentation and formatting.
+                  Extract and view the header and payload from any JWT token.
                 </p>
               </div>
               <div className="bg-muted/30 p-4 rounded-md">
                 <h3 className="font-medium mb-2">Validate</h3>
                 <p className="text-muted-foreground">
-                  Check if your JSON is valid and get helpful error messages.
+                  Verify that your token has the correct JWT format structure.
                 </p>
               </div>
               <div className="bg-muted/30 p-4 rounded-md">
-                <h3 className="font-medium mb-2">Minify</h3>
+                <h3 className="font-medium mb-2">Inspect</h3>
                 <p className="text-muted-foreground">
-                  Remove all whitespace to make your JSON as small as possible.
+                  Examine claims, expiration dates, and other token information.
                 </p>
               </div>
             </div>
@@ -214,4 +210,4 @@ const JsonFormatter = () => {
   );
 };
 
-export default JsonFormatter;
+export default JwtDecoder;
