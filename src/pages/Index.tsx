@@ -1,3 +1,4 @@
+
 import { useState, useEffect } from 'react';
 import { Link, useLocation } from 'react-router-dom';
 import Header from '@/components/Header';
@@ -16,6 +17,12 @@ import { BadgeDollarSign } from 'lucide-react';
 import { Card, CardContent } from '@/components/ui/card';
 import { motion } from 'framer-motion';
 
+/**
+ * Index Component
+ * 
+ * Main landing page that serves as the entry point and JSON formatter tool.
+ * Detects current route and displays appropriate title.
+ */
 const Index = () => {
   const [inputJson, setInputJson] = useState('');
   const [outputJson, setOutputJson] = useState('');
@@ -25,6 +32,7 @@ const Index = () => {
   const { toast } = useToast();
   const location = useLocation();
 
+  // Validate JSON whenever input changes
   useEffect(() => {
     if (inputJson.trim()) {
       const duplicateKeyCheck = checkForDuplicateKeys(inputJson);
@@ -52,6 +60,9 @@ const Index = () => {
     }
   }, [inputJson]);
 
+  /**
+   * Returns the appropriate page title based on current route
+   */
   const getPageTitle = () => {
     switch (location.pathname) {
       case '/jwt-decoder':
@@ -71,11 +82,19 @@ const Index = () => {
     }
   };
 
+  /**
+   * Handle Pretty Print action
+   * Formats JSON with proper indentation
+   */
   const handlePrettyPrint = () => {
     const result = prettyPrintJson(inputJson, true);
     handleJsonResult(result);
   };
 
+  /**
+   * Handle Validate action
+   * Checks if JSON is valid and shows appropriate toast
+   */
   const handleValidate = () => {
     const duplicateKeyCheck = checkForDuplicateKeys(inputJson);
     if (!duplicateKeyCheck.success) {
@@ -109,11 +128,19 @@ const Index = () => {
     }
   };
 
+  /**
+   * Handle Minify action
+   * Removes all whitespace from JSON
+   */
   const handleMinify = () => {
     const result = minifyJson(inputJson, true);
     handleJsonResult(result);
   };
 
+  /**
+   * Process JSON operation results
+   * Updates UI based on operation success/failure
+   */
   const handleJsonResult = (result: JsonResult) => {
     if (result.success) {
       setOutputJson(result.result || '');
@@ -143,6 +170,7 @@ const Index = () => {
     }
   };
 
+  // Define animation variants
   const containerVariants = {
     hidden: { opacity: 0 },
     visible: { 
@@ -184,31 +212,10 @@ const Index = () => {
           <motion.div className="grid grid-cols-1 md:grid-cols-12 gap-6" variants={itemVariants}>
             <div className="md:col-span-9">
               <ResizablePanelGroup
-                direction="horizontal"
+                direction="vertical"
                 className="min-h-[500px] rounded-lg border shadow-lg"
               >
-                <ResizablePanel defaultSize={43} minSize={30}>
-                  <div className="p-4 h-full">
-                    <h3 className="text-lg font-medium mb-3">Input</h3>
-                    <JsonInput value={inputJson} onChange={setInputJson} />
-                  </div>
-                </ResizablePanel>
-                
-                <ResizableHandle>
-                  <div className="flex flex-col items-center justify-center h-full">
-                    <div className="py-4">
-                      <ActionButtons 
-                        onPrettyPrint={handlePrettyPrint}
-                        onValidate={handleValidate}
-                        onMinify={handleMinify}
-                        outputJson={outputJson}
-                        isJsonValid={isJsonValid}
-                        vertical={true}
-                      />
-                    </div>
-                  </div>
-                </ResizableHandle>
-                
+                {/* Result panel (moved to top) */}
                 <ResizablePanel defaultSize={43} minSize={30}>
                   <div className="p-4 h-full flex flex-col">
                     <h3 className="text-lg font-medium mb-3">Result</h3>
@@ -224,6 +231,28 @@ const Index = () => {
                     <div className="flex-grow">
                       <OutputDisplay json={outputJson} hasError={!!error} />
                     </div>
+                  </div>
+                </ResizablePanel>
+                
+                <ResizableHandle>
+                  <div className="flex flex-col items-center justify-center w-full">
+                    <div className="py-4">
+                      <ActionButtons 
+                        onPrettyPrint={handlePrettyPrint}
+                        onValidate={handleValidate}
+                        onMinify={handleMinify}
+                        outputJson={outputJson}
+                        isJsonValid={isJsonValid}
+                      />
+                    </div>
+                  </div>
+                </ResizableHandle>
+                
+                {/* Input panel (moved to bottom) */}
+                <ResizablePanel defaultSize={43} minSize={30}>
+                  <div className="p-4 h-full">
+                    <h3 className="text-lg font-medium mb-3">Input</h3>
+                    <JsonInput value={inputJson} onChange={setInputJson} />
                   </div>
                 </ResizablePanel>
               </ResizablePanelGroup>

@@ -1,5 +1,6 @@
 
 import { ChangeEvent } from 'react';
+import { Textarea } from "@/components/ui/textarea";
 
 interface JsonInputProps {
   value: string;
@@ -8,6 +9,12 @@ interface JsonInputProps {
   error?: string;
 }
 
+/**
+ * JsonInput Component
+ * 
+ * Provides a text area for entering JSON with error handling.
+ * Styled for dark mode.
+ */
 const JsonInput = ({ value, onChange, placeholder = 'Paste your JSON here...', error }: JsonInputProps) => {
   const handleTextChange = (e: ChangeEvent<HTMLTextAreaElement>) => {
     onChange(e.target.value);
@@ -17,13 +24,15 @@ const JsonInput = ({ value, onChange, placeholder = 'Paste your JSON here...', e
     <div className="w-full space-y-2">
       <div className="flex items-center justify-between">
         <label className="text-sm font-medium">
-          Paste your JSON here
+          Enter or paste your JSON here
         </label>
       </div>
       
       <div className="relative">
-        <textarea
-          className={`json-input dark:bg-card/50 w-full min-h-[250px] ${error ? 'border-destructive' : ''}`}
+        <Textarea
+          className={`json-input w-full min-h-[250px] bg-card/50 border ${
+            error ? 'border-destructive' : 'border-border'
+          } resize-y font-mono text-sm focus-visible:ring-primary`}
           value={value}
           onChange={handleTextChange}
           placeholder={placeholder}
