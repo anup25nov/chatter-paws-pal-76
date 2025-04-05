@@ -10,6 +10,7 @@ interface ActionButtonsProps {
   onMinify: () => void;
   outputJson: string;
   isJsonValid: boolean;
+  primaryButtonText?: string;
 }
 
 const ActionButtons = ({ 
@@ -17,7 +18,8 @@ const ActionButtons = ({
   onValidate, 
   onMinify, 
   outputJson,
-  isJsonValid 
+  isJsonValid,
+  primaryButtonText = "Pretty Print"
 }: ActionButtonsProps) => {
   const [copied, setCopied] = useState(false);
   const { toast } = useToast();
@@ -37,7 +39,7 @@ const ActionButtons = ({
       setCopied(true);
       toast({
         title: "Copied!",
-        description: "JSON copied to clipboard"
+        description: "Output copied to clipboard"
       });
       
       setTimeout(() => setCopied(false), 2000);
@@ -58,7 +60,7 @@ const ActionButtons = ({
         className="bg-primary hover:bg-primary/90 text-primary-foreground"
       >
         <FileCode className="mr-2 h-4 w-4" />
-        Pretty Print
+        {primaryButtonText}
       </Button>
       
       <Button
@@ -70,15 +72,17 @@ const ActionButtons = ({
         Validate
       </Button>
       
-      <Button
-        onClick={onMinify}
-        disabled={!isJsonValid}
-        variant="outline"
-        className="bg-card hover:bg-muted"
-      >
-        <FileText className="mr-2 h-4 w-4" />
-        Minify
-      </Button>
+      {primaryButtonText !== "Minify JSON" && (
+        <Button
+          onClick={onMinify}
+          disabled={!isJsonValid}
+          variant="outline"
+          className="bg-card hover:bg-muted"
+        >
+          <FileText className="mr-2 h-4 w-4" />
+          Minify
+        </Button>
+      )}
       
       <Button
         onClick={copyToClipboard}
