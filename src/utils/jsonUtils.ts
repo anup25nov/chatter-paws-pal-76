@@ -16,10 +16,10 @@ export interface JsonResult {
 /**
  * Formats JSON string with proper indentation
  */
-export const prettyPrintJson = (json: string): JsonResult => {
-  // Check for duplicate keys first
+export const prettyPrintJson = (json: string, forceContinue: boolean = false): JsonResult => {
+  // Check for duplicate keys first - but don't block if forceContinue is true
   const duplicateKeyCheck = checkForDuplicateKeys(json);
-  if (!duplicateKeyCheck.success) {
+  if (!duplicateKeyCheck.success && !forceContinue) {
     return duplicateKeyCheck;
   }
 
@@ -38,7 +38,7 @@ export const prettyPrintJson = (json: string): JsonResult => {
 /**
  * Validates JSON string
  */
-export const validateJson = (json: string): JsonResult => {
+export const validateJson = (json: string, ignoreDuplicateKeys: boolean = false): JsonResult => {
   if (!json.trim()) {
     return { 
       success: false, 
@@ -49,10 +49,12 @@ export const validateJson = (json: string): JsonResult => {
     };
   }
   
-  // Check for duplicate keys first
-  const duplicateKeyCheck = checkForDuplicateKeys(json);
-  if (!duplicateKeyCheck.success) {
-    return duplicateKeyCheck;
+  // Check for duplicate keys first - but don't block if ignoreDuplicateKeys is true
+  if (!ignoreDuplicateKeys) {
+    const duplicateKeyCheck = checkForDuplicateKeys(json);
+    if (!duplicateKeyCheck.success) {
+      return duplicateKeyCheck;
+    }
   }
   
   try {
@@ -69,10 +71,10 @@ export const validateJson = (json: string): JsonResult => {
 /**
  * Minifies JSON string by removing all whitespace
  */
-export const minifyJson = (json: string): JsonResult => {
-  // Check for duplicate keys first
+export const minifyJson = (json: string, forceContinue: boolean = false): JsonResult => {
+  // Check for duplicate keys first - but don't block if forceContinue is true
   const duplicateKeyCheck = checkForDuplicateKeys(json);
-  if (!duplicateKeyCheck.success) {
+  if (!duplicateKeyCheck.success && !forceContinue) {
     return duplicateKeyCheck;
   }
 

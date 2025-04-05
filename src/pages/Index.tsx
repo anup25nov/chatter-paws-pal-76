@@ -7,7 +7,7 @@ import OutputDisplay from '@/components/OutputDisplay';
 import ErrorDisplay from '@/components/ErrorDisplay';
 import AdPlaceholder from '@/components/AdPlaceholder';
 import Footer from '@/components/Footer';
-import { prettyPrintJson, validateJson, minifyJson, JsonError, JsonResult } from '@/utils/jsonUtils';
+import { prettyPrintJson, validateJson, minifyJson, JsonError, JsonResult, checkForDuplicateKeys } from '@/utils/jsonUtils';
 import { Toaster } from '@/components/ui/toaster';
 import { useToast } from '@/hooks/use-toast';
 
@@ -15,17 +15,30 @@ const Index = () => {
   const [inputJson, setInputJson] = useState('');
   const [outputJson, setOutputJson] = useState('');
   const [error, setError] = useState<JsonError | undefined>(undefined);
+  const [warningError, setWarningError] = useState<JsonError | undefined>(undefined);
   const [isJsonValid, setIsJsonValid] = useState(false);
   const { toast } = useToast();
 
   useEffect(() => {
     // Check JSON validity whenever input changes
     if (inputJson.trim()) {
+      // First check for duplicate keys which we'll treat as warnings
+      const duplicateKeyCheck = checkForDuplicateKeys(inputJson);
+      if (!duplicateKeyCheck.success) {
+        setWarningError(duplicateKeyCheck.error);
+      } else {
+        setWarningError(undefined);
+      }
+      
+      // Then do the standard validation
       const result = validateJson(inputJson);
       setIsJsonValid(result.success);
       
       // Silently set error on input change, but don't show toast
-      if (!result.success) {
+      if (!result.success && !duplicateKeyCheck.success) {
+        setError(result.error);
+        setWarningError(undefined); // Don't show warning if we have a full error
+      } else if (!result.success) {
         setError(result.error);
       } else {
         setError(undefined);
@@ -33,24 +46,41 @@ const Index = () => {
     } else {
       setIsJsonValid(false);
       setError(undefined);
+      setWarningError(undefined);
     }
   }, [inputJson]);
 
   const handlePrettyPrint = () => {
-    const result = prettyPrintJson(inputJson);
+    // We still allow pretty printing with duplicate keys
+    const result = prettyPrintJson(inputJson, true);
     handleJsonResult(result);
   };
 
   const handleValidate = () => {
-    const result = validateJson(inputJson);
+    // First check for duplicate keys
+    const duplicateKeyCheck = checkForDuplicateKeys(inputJson);
+    if (!duplicateKeyCheck.success) {
+      setWarningError(duplicateKeyCheck.error);
+      toast({
+        title: "Validation Warning",
+        description: "Found duplicate keys in your JSON. This may cause problems.",
+        variant: "default"
+      });
+    }
+    
+    // Then do standard validation
+    const result = validateJson(inputJson, true);
     if (result.success) {
       setError(undefined);
       setOutputJson('JSON is valid! 👍');
       toast({
         title: "Validation Successful",
-        description: "Your JSON is valid and well-formed",
+        description: duplicateKeyCheck.success 
+          ? "Your JSON is valid and well-formed" 
+          : "Your JSON is syntactically valid, but contains duplicate keys",
       });
     } else {
+      setWarningError(undefined); // Don't show warnings with full errors
       setError(result.error);
       setOutputJson('');
       toast({
@@ -62,16 +92,32 @@ const Index = () => {
   };
 
   const handleMinify = () => {
-    const result = minifyJson(inputJson);
+    // We still allow minifying with duplicate keys
+    const result = minifyJson(inputJson, true);
     handleJsonResult(result);
   };
 
   const handleJsonResult = (result: JsonResult) => {
     if (result.success) {
       setOutputJson(result.result || '');
+      
+      // Check if we have duplicate keys warnings
+      const duplicateKeyCheck = checkForDuplicateKeys(inputJson);
+      if (!duplicateKeyCheck.success) {
+        setWarningError(duplicateKeyCheck.error);
+        toast({
+          title: "Operation Completed with Warnings",
+          description: "Found duplicate keys. Some data may be overwritten.",
+          variant: "default"
+        });
+      } else {
+        setWarningError(undefined);
+      }
+      
       setError(undefined);
     } else {
       setOutputJson('');
+      setWarningError(undefined);
       setError(result.error);
       toast({
         title: "Action Failed",
@@ -109,7 +155,13 @@ const Index = () => {
             />
           </section>
           
-          <ErrorDisplay error={error} jsonInput={inputJson} />
+          {warningError && (
+            <ErrorDisplay error={warningError} jsonInput={inputJson} warningOnly={true} />
+          )}
+          
+          {error && (
+            <ErrorDisplay error={error} jsonInput={inputJson} />
+          )}
           
           <section>
             <OutputDisplay json={outputJson} hasError={!!error} />
