@@ -5,7 +5,8 @@ import JsonInput from '@/components/JsonInput';
 import ActionButtons from '@/components/ActionButtons';
 import OutputDisplay from '@/components/OutputDisplay';
 import ErrorDisplay from '@/components/ErrorDisplay';
-import AdPlaceholder from '@/components/AdPlaceholder';
+import HeaderAd from '@/components/ads/HeaderAd';
+import SidebarAd from '@/components/ads/SidebarAd';
 import Footer from '@/components/Footer';
 import { prettyPrintJson, validateJson, minifyJson, JsonError, JsonResult, checkForDuplicateKeys } from '@/utils/jsonUtils';
 import { Toaster } from '@/components/ui/toaster';
@@ -137,61 +138,91 @@ const Index = () => {
         <div className="mx-auto">
           <section className="mb-8">
             <h1 className="text-3xl md:text-4xl font-bold mb-2 bg-gradient-to-r from-primary to-accent bg-clip-text text-transparent">
-              Your JSON's BFF 💖
+              DevxTools JSON Formatter
             </h1>
-            <p className="text-muted-foreground mb-6">
-              Paste your JSON, we'll make it pretty (and tell you if it's not valid)
+            <p className="text-muted-foreground mb-4">
+              Format, validate, and minify your JSON with a professional developer tool
             </p>
+            
+            <HeaderAd />
           </section>
           
-          <ResizablePanelGroup
-            direction="horizontal"
-            className="min-h-[500px] rounded-lg border"
-          >
-            <ResizablePanel defaultSize={50} minSize={30}>
-              <div className="p-4 h-full">
-                <h3 className="text-lg font-medium mb-3">Input JSON</h3>
-                <JsonInput value={inputJson} onChange={setInputJson} />
-              </div>
-            </ResizablePanel>
+          <div className="grid grid-cols-1 md:grid-cols-12 gap-6">
+            <div className="md:col-span-9">
+              <ResizablePanelGroup
+                direction="horizontal"
+                className="min-h-[500px] rounded-lg border"
+              >
+                <ResizablePanel defaultSize={50} minSize={30}>
+                  <div className="p-4 h-full">
+                    <h3 className="text-lg font-medium mb-3">Input JSON</h3>
+                    <JsonInput value={inputJson} onChange={setInputJson} />
+                  </div>
+                </ResizablePanel>
+                
+                <ResizableHandle withHandle />
+                
+                <ResizablePanel defaultSize={50} minSize={30}>
+                  <div className="p-4 h-full flex flex-col">
+                    <h3 className="text-lg font-medium mb-3">Result</h3>
+                    <div className="mb-4">
+                      <ActionButtons 
+                        onPrettyPrint={handlePrettyPrint}
+                        onValidate={handleValidate}
+                        onMinify={handleMinify}
+                        outputJson={outputJson}
+                        isJsonValid={isJsonValid}
+                      />
+                    </div>
+                    
+                    {warningError && (
+                      <ErrorDisplay error={warningError} jsonInput={inputJson} warningOnly={true} />
+                    )}
+                    
+                    {error && (
+                      <ErrorDisplay error={error} jsonInput={inputJson} />
+                    )}
+                    
+                    <div className="flex-grow">
+                      <OutputDisplay json={outputJson} hasError={!!error} />
+                    </div>
+                  </div>
+                </ResizablePanel>
+              </ResizablePanelGroup>
+            </div>
             
-            <ResizableHandle withHandle />
-            
-            <ResizablePanel defaultSize={50} minSize={30}>
-              <div className="p-4 h-full flex flex-col">
-                <h3 className="text-lg font-medium mb-3">Result</h3>
-                <div className="mb-4">
-                  <ActionButtons 
-                    onPrettyPrint={handlePrettyPrint}
-                    onValidate={handleValidate}
-                    onMinify={handleMinify}
-                    outputJson={outputJson}
-                    isJsonValid={isJsonValid}
-                  />
-                </div>
-                
-                {warningError && (
-                  <ErrorDisplay error={warningError} jsonInput={inputJson} warningOnly={true} />
-                )}
-                
-                {error && (
-                  <ErrorDisplay error={error} jsonInput={inputJson} />
-                )}
-                
-                <div className="flex-grow">
-                  <OutputDisplay json={outputJson} hasError={!!error} />
-                </div>
+            <div className="md:col-span-3">
+              <SidebarAd />
+              
+              <div className="bg-card rounded-lg p-4 border border-border mb-6">
+                <h3 className="text-sm font-medium mb-2">JSON Tools</h3>
+                <ul className="text-sm space-y-2 text-muted-foreground">
+                  <li className="hover:text-foreground transition-colors cursor-pointer">JSON Formatter</li>
+                  <li className="hover:text-foreground transition-colors cursor-pointer">JSON Validator</li>
+                  <li className="hover:text-foreground transition-colors cursor-pointer">JSON Minifier</li>
+                  <li className="hover:text-foreground transition-colors cursor-pointer">JSON to CSV</li>
+                  <li className="hover:text-foreground transition-colors cursor-pointer">JSON to XML</li>
+                </ul>
               </div>
-            </ResizablePanel>
-          </ResizablePanelGroup>
-          
-          <AdPlaceholder />
+              
+              <div className="bg-card rounded-lg p-4 border border-border">
+                <h3 className="text-sm font-medium mb-2">Pro Features</h3>
+                <ul className="text-sm space-y-2 text-muted-foreground">
+                  <li>✓ Schema Validation</li>
+                  <li>✓ JSON Diff Tool</li>
+                  <li>✓ JSON Query</li>
+                  <li>✓ Save & Export</li>
+                  <li>✓ No Ads</li>
+                </ul>
+              </div>
+            </div>
+          </div>
           
           <section className="mt-8 bg-card rounded-lg p-6 border border-border">
-            <h2 className="text-xl font-semibold mb-4">About JsonBae</h2>
+            <h2 className="text-xl font-semibold mb-4">About DevxTools</h2>
             <p className="mb-4">
-              JsonBae is your JSON's best friend forever! We help developers quickly format, validate, 
-              and manipulate JSON data with a simple, clean interface.
+              DevxTools provides professional-grade utilities for developers. Our JSON formatter helps you 
+              quickly beautify, validate, and optimize your JSON data with a clean interface.
             </p>
             <div className="grid grid-cols-1 md:grid-cols-3 gap-4 text-sm">
               <div className="bg-muted/30 p-4 rounded-md">

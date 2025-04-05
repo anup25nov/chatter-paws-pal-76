@@ -21,13 +21,15 @@ const Header = () => {
       <div className="container flex items-center justify-between h-16 px-4">
         <div className="flex items-center space-x-2">
           <span className="text-2xl font-bold bg-gradient-to-r from-primary to-accent bg-clip-text text-transparent">
-            JsonBae.dev
+            DevxTools
           </span>
-          <span className="animate-bounce-small">💖</span>
+          <span className="bg-primary/10 text-primary px-1.5 py-0.5 text-xs font-medium rounded">
+            JSON
+          </span>
         </div>
         <div className="flex items-center space-x-4">
           <div className="text-sm text-muted-foreground hidden md:block">
-            Your JSON's BFF
+            Professional JSON Tools
           </div>
           <ThemeToggle />
         </div>
