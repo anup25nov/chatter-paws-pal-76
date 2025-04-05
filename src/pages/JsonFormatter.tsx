@@ -1,4 +1,3 @@
-
 import { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import Header from '@/components/Header';
@@ -20,7 +19,6 @@ const JsonFormatter = () => {
   const [warningError, setWarningError] = useState<JsonError | undefined>(undefined);
   const [isJsonValid, setIsJsonValid] = useState(false);
   const { toast } = useToast();
-  const location = useLocation();
 
   useEffect(() => {
     if (inputJson.trim()) {

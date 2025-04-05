@@ -115,7 +115,7 @@ const JwtDecoder = () => {
               >
                 <ResizablePanel defaultSize={50} minSize={30}>
                   <div className="p-4 h-full">
-                    <h3 className="text-lg font-medium mb-3">JWT Token</h3>
+                    <h3 className="text-lg font-medium mb-3">Input JWT</h3>
                     <JsonInput value={inputToken} onChange={handleInputChange} placeholder="Paste your JWT token here..." />
                   </div>
                 </ResizablePanel>
@@ -124,7 +124,7 @@ const JwtDecoder = () => {
                 
                 <ResizablePanel defaultSize={50} minSize={30}>
                   <div className="p-4 h-full flex flex-col">
-                    <h3 className="text-lg font-medium mb-3">Decoded Token</h3>
+                    <h3 className="text-lg font-medium mb-3">Result</h3>
                     <div className="mb-4">
                       <ActionButtons 
                         onPrettyPrint={handleDecode}

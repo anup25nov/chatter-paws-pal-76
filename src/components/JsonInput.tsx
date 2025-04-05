@@ -4,9 +4,11 @@ import { ChangeEvent } from 'react';
 interface JsonInputProps {
   value: string;
   onChange: (value: string) => void;
+  placeholder?: string;
+  error?: string;
 }
 
-const JsonInput = ({ value, onChange }: JsonInputProps) => {
+const JsonInput = ({ value, onChange, placeholder = 'Paste your JSON here...', error }: JsonInputProps) => {
   const handleTextChange = (e: ChangeEvent<HTMLTextAreaElement>) => {
     onChange(e.target.value);
   };
@@ -21,11 +23,12 @@ const JsonInput = ({ value, onChange }: JsonInputProps) => {
       
       <div className="relative">
         <textarea
-          className="json-input dark:bg-card/50 w-full min-h-[250px]"
+          className={`json-input dark:bg-card/50 w-full min-h-[250px] ${error ? 'border-destructive' : ''}`}
           value={value}
           onChange={handleTextChange}
-          placeholder='Paste your JSON here...'
+          placeholder={placeholder}
         />
+        {error && <p className="text-destructive text-sm mt-1">{error}</p>}
       </div>
     </div>
   );
