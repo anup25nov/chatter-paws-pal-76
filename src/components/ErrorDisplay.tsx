@@ -26,6 +26,9 @@ const ErrorDisplay = ({ error, jsonInput }: ErrorDisplayProps) => {
       case 'value':
         return "Make sure values are valid (numbers without quotes, strings with quotes).";
       case 'key':
+        if (error.message.includes('Duplicate key')) {
+          return "JSON objects cannot have duplicate keys. Each key must be unique within its object.";
+        }
         return "Check for duplicate or invalid object keys.";
       case 'structure':
         return "Your JSON structure is incomplete. Check for missing closing brackets or braces.";

@@ -1,3 +1,4 @@
+
 export interface JsonError {
   message: string;
   line?: number;
@@ -16,6 +17,12 @@ export interface JsonResult {
  * Formats JSON string with proper indentation
  */
 export const prettyPrintJson = (json: string): JsonResult => {
+  // Check for duplicate keys first
+  const duplicateKeyCheck = checkForDuplicateKeys(json);
+  if (!duplicateKeyCheck.success) {
+    return duplicateKeyCheck;
+  }
+
   try {
     const obj = JSON.parse(json);
     const prettyJson = JSON.stringify(obj, null, 2);
@@ -42,6 +49,12 @@ export const validateJson = (json: string): JsonResult => {
     };
   }
   
+  // Check for duplicate keys first
+  const duplicateKeyCheck = checkForDuplicateKeys(json);
+  if (!duplicateKeyCheck.success) {
+    return duplicateKeyCheck;
+  }
+  
   try {
     JSON.parse(json);
     return { success: true };
@@ -57,6 +70,12 @@ export const validateJson = (json: string): JsonResult => {
  * Minifies JSON string by removing all whitespace
  */
 export const minifyJson = (json: string): JsonResult => {
+  // Check for duplicate keys first
+  const duplicateKeyCheck = checkForDuplicateKeys(json);
+  if (!duplicateKeyCheck.success) {
+    return duplicateKeyCheck;
+  }
+
   try {
     const obj = JSON.parse(json);
     const minifiedJson = JSON.stringify(obj);
@@ -66,6 +85,73 @@ export const minifyJson = (json: string): JsonResult => {
       success: false,
       error: parseJsonError(error)
     };
+  }
+};
+
+/**
+ * Check for duplicate keys in a JSON string
+ */
+export const checkForDuplicateKeys = (json: string): JsonResult => {
+  if (!json.trim()) {
+    return { success: true };
+  }
+  
+  try {
+    // This regex pattern looks for key patterns in JSON
+    const keyPattern = /"([^"]+)"\s*:/g;
+    let match;
+    const keys: { [key: string]: number[] } = {};
+    let lineCount = 1;
+    let lastNewlinePos = 0;
+    
+    // Count lines to give accurate line numbers in errors
+    for (let i = 0; i < json.length; i++) {
+      if (json[i] === '\n') {
+        lineCount++;
+        lastNewlinePos = i;
+      }
+    }
+    
+    // Find all keys and their positions
+    while ((match = keyPattern.exec(json)) !== null) {
+      const key = match[1];
+      const position = match.index;
+      
+      // Calculate line number for this key
+      let keyLine = 1;
+      let lastNL = 0;
+      for (let i = 0; i < position; i++) {
+        if (json[i] === '\n') {
+          keyLine++;
+          lastNL = i;
+        }
+      }
+      
+      if (!keys[key]) {
+        keys[key] = [keyLine];
+      } else {
+        keys[key].push(keyLine);
+      }
+    }
+    
+    // Check for duplicate keys
+    for (const key in keys) {
+      if (keys[key].length > 1) {
+        return { 
+          success: false, 
+          error: {
+            message: `Duplicate key "${key}" found at lines ${keys[key].join(', ')}`,
+            line: keys[key][1], // Point to the second occurrence
+            errorType: 'key',
+          }
+        };
+      }
+    }
+    
+    return { success: true };
+  } catch (error) {
+    // If our duplicate key detection throws an error, we'll fall back to standard parsing
+    return { success: true };
   }
 };
 
