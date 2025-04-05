@@ -1,5 +1,5 @@
-
 import { useState, useEffect } from 'react';
+import { Link, useLocation } from 'react-router-dom';
 import Header from '@/components/Header';
 import JsonInput from '@/components/JsonInput';
 import ActionButtons from '@/components/ActionButtons';
@@ -20,11 +20,10 @@ const Index = () => {
   const [warningError, setWarningError] = useState<JsonError | undefined>(undefined);
   const [isJsonValid, setIsJsonValid] = useState(false);
   const { toast } = useToast();
+  const location = useLocation();
 
   useEffect(() => {
-    // Check JSON validity whenever input changes
     if (inputJson.trim()) {
-      // First check for duplicate keys which we'll treat as warnings
       const duplicateKeyCheck = checkForDuplicateKeys(inputJson);
       if (!duplicateKeyCheck.success) {
         setWarningError(duplicateKeyCheck.error);
@@ -32,14 +31,12 @@ const Index = () => {
         setWarningError(undefined);
       }
       
-      // Then do the standard validation
       const result = validateJson(inputJson);
       setIsJsonValid(result.success);
       
-      // Silently set error on input change, but don't show toast
       if (!result.success && !duplicateKeyCheck.success) {
         setError(result.error);
-        setWarningError(undefined); // Don't show warning if we have a full error
+        setWarningError(undefined);
       } else if (!result.success) {
         setError(result.error);
       } else {
@@ -52,14 +49,27 @@ const Index = () => {
     }
   }, [inputJson]);
 
+  const getPageTitle = () => {
+    switch (location.pathname) {
+      case '/json-validator':
+        return 'DevxTools JSON Validator';
+      case '/json-minifier':
+        return 'DevxTools JSON Minifier';
+      case '/json-to-csv':
+        return 'DevxTools JSON to CSV';
+      case '/json-to-xml':
+        return 'DevxTools JSON to XML';
+      default:
+        return 'DevxTools JSON Formatter';
+    }
+  };
+
   const handlePrettyPrint = () => {
-    // We still allow pretty printing with duplicate keys
     const result = prettyPrintJson(inputJson, true);
     handleJsonResult(result);
   };
 
   const handleValidate = () => {
-    // First check for duplicate keys
     const duplicateKeyCheck = checkForDuplicateKeys(inputJson);
     if (!duplicateKeyCheck.success) {
       setWarningError(duplicateKeyCheck.error);
@@ -70,7 +80,6 @@ const Index = () => {
       });
     }
     
-    // Then do standard validation
     const result = validateJson(inputJson, true);
     if (result.success) {
       setError(undefined);
@@ -82,7 +91,7 @@ const Index = () => {
           : "Your JSON is syntactically valid, but contains duplicate keys",
       });
     } else {
-      setWarningError(undefined); // Don't show warnings with full errors
+      setWarningError(undefined);
       setError(result.error);
       setOutputJson('');
       toast({
@@ -94,7 +103,6 @@ const Index = () => {
   };
 
   const handleMinify = () => {
-    // We still allow minifying with duplicate keys
     const result = minifyJson(inputJson, true);
     handleJsonResult(result);
   };
@@ -103,7 +111,6 @@ const Index = () => {
     if (result.success) {
       setOutputJson(result.result || '');
       
-      // Check if we have duplicate keys warnings
       const duplicateKeyCheck = checkForDuplicateKeys(inputJson);
       if (!duplicateKeyCheck.success) {
         setWarningError(duplicateKeyCheck.error);
@@ -138,7 +145,7 @@ const Index = () => {
         <div className="mx-auto">
           <section className="mb-8">
             <h1 className="text-3xl md:text-4xl font-bold mb-2 bg-gradient-to-r from-primary to-accent bg-clip-text text-transparent">
-              DevxTools JSON Formatter
+              {getPageTitle()}
             </h1>
             <p className="text-muted-foreground mb-4">
               Format, validate, and minify your JSON with a professional developer tool
@@ -197,11 +204,21 @@ const Index = () => {
               <div className="bg-card rounded-lg p-4 border border-border mb-6">
                 <h3 className="text-sm font-medium mb-2">JSON Tools</h3>
                 <ul className="text-sm space-y-2 text-muted-foreground">
-                  <li className="hover:text-foreground transition-colors cursor-pointer">JSON Formatter</li>
-                  <li className="hover:text-foreground transition-colors cursor-pointer">JSON Validator</li>
-                  <li className="hover:text-foreground transition-colors cursor-pointer">JSON Minifier</li>
-                  <li className="hover:text-foreground transition-colors cursor-pointer">JSON to CSV</li>
-                  <li className="hover:text-foreground transition-colors cursor-pointer">JSON to XML</li>
+                  <li className="hover:text-foreground transition-colors">
+                    <Link to="/json-formatter">JSON Formatter</Link>
+                  </li>
+                  <li className="hover:text-foreground transition-colors">
+                    <Link to="/json-validator">JSON Validator</Link>
+                  </li>
+                  <li className="hover:text-foreground transition-colors">
+                    <Link to="/json-minifier">JSON Minifier</Link>
+                  </li>
+                  <li className="hover:text-foreground transition-colors">
+                    <Link to="/json-to-csv">JSON to CSV</Link>
+                  </li>
+                  <li className="hover:text-foreground transition-colors">
+                    <Link to="/json-to-xml">JSON to XML</Link>
+                  </li>
                 </ul>
               </div>
               
