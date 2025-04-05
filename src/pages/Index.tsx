@@ -9,18 +9,27 @@ import AdPlaceholder from '@/components/AdPlaceholder';
 import Footer from '@/components/Footer';
 import { prettyPrintJson, validateJson, minifyJson, JsonError, JsonResult } from '@/utils/jsonUtils';
 import { Toaster } from '@/components/ui/toaster';
+import { useToast } from '@/hooks/use-toast';
 
 const Index = () => {
   const [inputJson, setInputJson] = useState('');
   const [outputJson, setOutputJson] = useState('');
   const [error, setError] = useState<JsonError | undefined>(undefined);
   const [isJsonValid, setIsJsonValid] = useState(false);
+  const { toast } = useToast();
 
   useEffect(() => {
     // Check JSON validity whenever input changes
     if (inputJson.trim()) {
       const result = validateJson(inputJson);
       setIsJsonValid(result.success);
+      
+      // Silently set error on input change, but don't show toast
+      if (!result.success) {
+        setError(result.error);
+      } else {
+        setError(undefined);
+      }
     } else {
       setIsJsonValid(false);
       setError(undefined);
@@ -37,9 +46,18 @@ const Index = () => {
     if (result.success) {
       setError(undefined);
       setOutputJson('JSON is valid! 👍');
+      toast({
+        title: "Validation Successful",
+        description: "Your JSON is valid and well-formed",
+      });
     } else {
       setError(result.error);
       setOutputJson('');
+      toast({
+        title: "Validation Failed",
+        description: result.error?.message || "Invalid JSON",
+        variant: "destructive"
+      });
     }
   };
 
@@ -55,6 +73,11 @@ const Index = () => {
     } else {
       setOutputJson('');
       setError(result.error);
+      toast({
+        title: "Action Failed",
+        description: result.error?.message || "An error occurred",
+        variant: "destructive"
+      });
     }
   };
 
@@ -86,10 +109,10 @@ const Index = () => {
             />
           </section>
           
-          <ErrorDisplay error={error} />
+          <ErrorDisplay error={error} jsonInput={inputJson} />
           
           <section>
-            <OutputDisplay json={outputJson} />
+            <OutputDisplay json={outputJson} hasError={!!error} />
           </section>
           
           <AdPlaceholder />

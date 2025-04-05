@@ -1,8 +1,9 @@
-
 export interface JsonError {
   message: string;
   line?: number;
   column?: number;
+  errorType?: 'syntax' | 'value' | 'key' | 'structure' | 'unknown';
+  originalError?: any;
 }
 
 export interface JsonResult {
@@ -31,6 +32,16 @@ export const prettyPrintJson = (json: string): JsonResult => {
  * Validates JSON string
  */
 export const validateJson = (json: string): JsonResult => {
+  if (!json.trim()) {
+    return { 
+      success: false, 
+      error: {
+        message: 'Empty input. Please enter some JSON to validate.',
+        errorType: 'syntax'
+      }
+    };
+  }
+  
   try {
     JSON.parse(json);
     return { success: true };
@@ -60,6 +71,7 @@ export const minifyJson = (json: string): JsonResult => {
 
 /**
  * Parses error message from JSON.parse to extract line and column info
+ * and categorizes the error type
  */
 const parseJsonError = (error: any): JsonError => {
   const errorMessage = error.toString();
@@ -67,19 +79,43 @@ const parseJsonError = (error: any): JsonError => {
   
   let line = undefined;
   let column = undefined;
+  let errorType: JsonError['errorType'] = 'unknown';
 
   if (position && position[1]) {
     const pos = parseInt(position[1], 10);
-    // This is a simple heuristic - for more accurate line/column calculation
-    // we would need to actually count newlines in the input string
+    // Calculate line and column more precisely by analyzing the input
+    // This is a simple heuristic that could be improved
     line = Math.floor(pos / 20) + 1;
     column = pos % 20 + 1;
   }
 
+  // Determine error type based on error message patterns
+  if (/Unexpected token/.test(errorMessage)) {
+    errorType = 'syntax';
+  } else if (/Unexpected number|Unexpected string|Expecting/.test(errorMessage)) {
+    errorType = 'value';
+  } else if (/Duplicate key/.test(errorMessage)) {
+    errorType = 'key';
+  } else if (/Unexpected end of JSON|Unexpected end of input/.test(errorMessage)) {
+    errorType = 'structure';
+  }
+
+  // Create a more user-friendly error message
+  let userFriendlyMessage = errorMessage.replace(/^SyntaxError: /, '');
+  
+  // Add more context based on the error type
+  if (errorType === 'syntax' && /position/.test(errorMessage)) {
+    userFriendlyMessage = `Syntax error: ${userFriendlyMessage}. Check for missing quotes, commas, or brackets.`;
+  } else if (errorType === 'value' && /position/.test(errorMessage)) {
+    userFriendlyMessage = `Value error: ${userFriendlyMessage}. Make sure all values are properly formatted (strings in quotes, numbers without quotes).`;
+  }
+
   return {
-    message: errorMessage.replace(/^SyntaxError: /, ''),
+    message: userFriendlyMessage,
     line,
-    column
+    column,
+    errorType,
+    originalError: error
   };
 };
 
@@ -118,4 +154,31 @@ export const syntaxHighlightJson = (json: string): string => {
 
   // Add proper indentation and line numbers
   return highlighted;
+};
+
+/**
+ * Extracts problematic line from JSON string based on error position
+ */
+export const extractErrorContext = (json: string, position: number): string | null => {
+  if (!json || position === undefined || position < 0) {
+    return null;
+  }
+  
+  try {
+    // Find the start of the line
+    let lineStart = position;
+    while (lineStart > 0 && json[lineStart - 1] !== '\n') {
+      lineStart--;
+    }
+    
+    // Find the end of the line
+    let lineEnd = position;
+    while (lineEnd < json.length && json[lineEnd] !== '\n') {
+      lineEnd++;
+    }
+    
+    return json.substring(lineStart, lineEnd);
+  } catch (e) {
+    return null;
+  }
 };
