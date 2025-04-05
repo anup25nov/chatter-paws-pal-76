@@ -10,6 +10,7 @@ import Footer from '@/components/Footer';
 import { prettyPrintJson, validateJson, minifyJson, JsonError, JsonResult, checkForDuplicateKeys } from '@/utils/jsonUtils';
 import { Toaster } from '@/components/ui/toaster';
 import { useToast } from '@/hooks/use-toast';
+import { ResizablePanelGroup, ResizablePanel, ResizableHandle } from '@/components/ui/resizable';
 
 const Index = () => {
   const [inputJson, setInputJson] = useState('');
@@ -133,7 +134,7 @@ const Index = () => {
       <Header />
       
       <main className="flex-1 container px-4 py-8">
-        <div className="max-w-5xl mx-auto">
+        <div className="mx-auto">
           <section className="mb-8">
             <h1 className="text-3xl md:text-4xl font-bold mb-2 bg-gradient-to-r from-primary to-accent bg-clip-text text-transparent">
               Your JSON's BFF 💖
@@ -141,31 +142,48 @@ const Index = () => {
             <p className="text-muted-foreground mb-6">
               Paste your JSON, we'll make it pretty (and tell you if it's not valid)
             </p>
+          </section>
+          
+          <ResizablePanelGroup
+            direction="horizontal"
+            className="min-h-[500px] rounded-lg border"
+          >
+            <ResizablePanel defaultSize={50} minSize={30}>
+              <div className="p-4 h-full">
+                <h3 className="text-lg font-medium mb-3">Input JSON</h3>
+                <JsonInput value={inputJson} onChange={setInputJson} />
+              </div>
+            </ResizablePanel>
             
-            <JsonInput value={inputJson} onChange={setInputJson} />
-          </section>
-          
-          <section className="mb-6">
-            <ActionButtons 
-              onPrettyPrint={handlePrettyPrint}
-              onValidate={handleValidate}
-              onMinify={handleMinify}
-              outputJson={outputJson}
-              isJsonValid={isJsonValid}
-            />
-          </section>
-          
-          {warningError && (
-            <ErrorDisplay error={warningError} jsonInput={inputJson} warningOnly={true} />
-          )}
-          
-          {error && (
-            <ErrorDisplay error={error} jsonInput={inputJson} />
-          )}
-          
-          <section>
-            <OutputDisplay json={outputJson} hasError={!!error} />
-          </section>
+            <ResizableHandle withHandle />
+            
+            <ResizablePanel defaultSize={50} minSize={30}>
+              <div className="p-4 h-full flex flex-col">
+                <h3 className="text-lg font-medium mb-3">Result</h3>
+                <div className="mb-4">
+                  <ActionButtons 
+                    onPrettyPrint={handlePrettyPrint}
+                    onValidate={handleValidate}
+                    onMinify={handleMinify}
+                    outputJson={outputJson}
+                    isJsonValid={isJsonValid}
+                  />
+                </div>
+                
+                {warningError && (
+                  <ErrorDisplay error={warningError} jsonInput={inputJson} warningOnly={true} />
+                )}
+                
+                {error && (
+                  <ErrorDisplay error={error} jsonInput={inputJson} />
+                )}
+                
+                <div className="flex-grow">
+                  <OutputDisplay json={outputJson} hasError={!!error} />
+                </div>
+              </div>
+            </ResizablePanel>
+          </ResizablePanelGroup>
           
           <AdPlaceholder />
           
