@@ -11,6 +11,7 @@ interface ActionButtonsProps {
   outputJson: string;
   isJsonValid: boolean;
   primaryButtonText?: string;
+  vertical?: boolean;
 }
 
 const ActionButtons = ({ 
@@ -19,7 +20,8 @@ const ActionButtons = ({
   onMinify, 
   outputJson,
   isJsonValid,
-  primaryButtonText = "Pretty Print"
+  primaryButtonText = "Pretty Print",
+  vertical = false
 }: ActionButtonsProps) => {
   const [copied, setCopied] = useState(false);
   const { toast } = useToast();
@@ -53,14 +55,14 @@ const ActionButtons = ({
   };
 
   return (
-    <div className="flex flex-wrap gap-3">
+    <div className={`flex ${vertical ? 'flex-col' : 'flex-wrap'} gap-3`}>
       <Button
         onClick={onPrettyPrint}
         disabled={!isJsonValid}
         className="bg-primary hover:bg-primary/90 text-primary-foreground font-medium"
-        size="lg"
+        size={vertical ? "default" : "lg"}
       >
-        <FileCode className="mr-2 h-5 w-5" />
+        <FileCode className={`${vertical ? 'mr-1.5 h-4 w-4' : 'mr-2 h-5 w-5'}`} />
         {primaryButtonText}
       </Button>
       
@@ -68,9 +70,9 @@ const ActionButtons = ({
         onClick={onValidate}
         variant="outline"
         className="bg-card hover:bg-muted font-medium"
-        size="lg"
+        size={vertical ? "default" : "lg"}
       >
-        <AlertCircle className="mr-2 h-5 w-5" />
+        <AlertCircle className={`${vertical ? 'mr-1.5 h-4 w-4' : 'mr-2 h-5 w-5'}`} />
         Validate
       </Button>
       
@@ -80,9 +82,9 @@ const ActionButtons = ({
           disabled={!isJsonValid}
           variant="outline"
           className="bg-card hover:bg-muted font-medium"
-          size="lg"
+          size={vertical ? "default" : "lg"}
         >
-          <FileText className="mr-2 h-5 w-5" />
+          <FileText className={`${vertical ? 'mr-1.5 h-4 w-4' : 'mr-2 h-5 w-5'}`} />
           Minify
         </Button>
       )}
@@ -92,16 +94,16 @@ const ActionButtons = ({
         disabled={!outputJson}
         variant={copied ? "default" : "secondary"}
         className={copied ? "bg-success hover:bg-success/90 text-success-foreground font-medium" : "font-medium"}
-        size="lg"
+        size={vertical ? "default" : "lg"}
       >
         {copied ? (
           <>
-            <Check className="mr-2 h-5 w-5" />
+            <Check className={`${vertical ? 'mr-1.5 h-4 w-4' : 'mr-2 h-5 w-5'}`} />
             Copied!
           </>
         ) : (
           <>
-            <Copy className="mr-2 h-5 w-5" />
+            <Copy className={`${vertical ? 'mr-1.5 h-4 w-4' : 'mr-2 h-5 w-5'}`} />
             Copy
           </>
         )}

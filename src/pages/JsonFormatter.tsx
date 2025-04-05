@@ -110,7 +110,7 @@ const JsonFormatter = () => {
                 direction="horizontal"
                 className="min-h-[500px] rounded-lg border"
               >
-                <ResizablePanel defaultSize={50} minSize={30}>
+                <ResizablePanel defaultSize={40} minSize={30}>
                   <div className="p-4 h-full">
                     <h3 className="text-lg font-medium mb-3">Input JSON</h3>
                     <JsonInput value={inputJson} onChange={setInputJson} />
@@ -118,8 +118,8 @@ const JsonFormatter = () => {
                 </ResizablePanel>
                 
                 <ResizableHandle>
-                  <div className="flex flex-col items-center justify-center h-full">
-                    <div className="py-4">
+                  <div className="flex items-center justify-center h-full">
+                    <div className="py-6 px-2">
                       <ActionButtons 
                         onPrettyPrint={handlePrettyPrint}
                         onValidate={handleValidate}
@@ -131,7 +131,7 @@ const JsonFormatter = () => {
                   </div>
                 </ResizableHandle>
                 
-                <ResizablePanel defaultSize={50} minSize={30}>
+                <ResizablePanel defaultSize={40} minSize={30}>
                   <div className="p-4 h-full flex flex-col">
                     <h3 className="text-lg font-medium mb-3">Result</h3>
                     
