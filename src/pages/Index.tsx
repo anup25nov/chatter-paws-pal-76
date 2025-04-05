@@ -13,6 +13,8 @@ import { prettyPrintJson, validateJson, minifyJson, JsonError, JsonResult, check
 import { Toaster } from '@/components/ui/toaster';
 import { useToast } from '@/hooks/use-toast';
 import { ResizablePanelGroup, ResizablePanel, ResizableHandle } from '@/components/ui/resizable';
+import { BadgeDollarSign } from 'lucide-react';
+import { Card, CardContent } from '@/components/ui/card';
 
 const Index = () => {
   const [inputJson, setInputJson] = useState('');
@@ -172,12 +174,9 @@ const Index = () => {
                   </div>
                 </ResizablePanel>
                 
-                <ResizableHandle withHandle />
-                
-                <ResizablePanel defaultSize={50} minSize={30}>
-                  <div className="p-4 h-full flex flex-col">
-                    <h3 className="text-lg font-medium mb-3">Result</h3>
-                    <div className="mb-4">
+                <ResizableHandle>
+                  <div className="flex flex-col items-center justify-center h-full">
+                    <div className="py-4">
                       <ActionButtons 
                         onPrettyPrint={handlePrettyPrint}
                         onValidate={handleValidate}
@@ -186,6 +185,12 @@ const Index = () => {
                         isJsonValid={isJsonValid}
                       />
                     </div>
+                  </div>
+                </ResizableHandle>
+                
+                <ResizablePanel defaultSize={50} minSize={30}>
+                  <div className="p-4 h-full flex flex-col">
+                    <h3 className="text-lg font-medium mb-3">Result</h3>
                     
                     {warningError && (
                       <ErrorDisplay error={warningError} jsonInput={inputJson} warningOnly={true} />
@@ -235,7 +240,27 @@ const Index = () => {
             </div>
           </div>
           
-          <section className="mt-8 bg-card rounded-lg p-6 border border-border">
+          {/* Additional Ad above About section */}
+          <div className="mt-8 mb-6">
+            <Card className="w-full overflow-hidden border-dashed border-primary/30 hover:border-primary/70 transition-all duration-300 bg-muted/10">
+              <CardContent className="p-4">
+                <div className="flex items-center justify-between">
+                  <div className="flex items-center gap-2">
+                    <BadgeDollarSign className="h-5 w-5 text-primary" />
+                    <span className="font-medium text-sm text-primary">Premium DevxTools Pro Suite</span>
+                  </div>
+                  <button className="text-xs bg-primary/90 hover:bg-primary text-white px-3 py-1 rounded-full transition-colors">
+                    Get Pro Access
+                  </button>
+                </div>
+                <p className="text-xs text-muted-foreground mt-2">
+                  Unlock advanced features: JSON Schema validation, API access, diff viewer, team sharing, and more.
+                </p>
+              </CardContent>
+            </Card>
+          </div>
+          
+          <section className="mt-4 bg-card rounded-lg p-6 border border-border">
             <h2 className="text-xl font-semibold mb-4">About DevxTools</h2>
             <p className="mb-4 text-base">
               DevxTools provides professional-grade utilities for developers. Our tools help you 
