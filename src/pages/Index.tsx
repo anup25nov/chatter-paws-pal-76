@@ -1,4 +1,3 @@
-
 import { useState, useEffect } from 'react';
 import { Link, useLocation } from 'react-router-dom';
 import Header from '@/components/Header';
@@ -15,6 +14,7 @@ import { useToast } from '@/hooks/use-toast';
 import { ResizablePanelGroup, ResizablePanel, ResizableHandle } from '@/components/ui/resizable';
 import { BadgeDollarSign } from 'lucide-react';
 import { Card, CardContent } from '@/components/ui/card';
+import { motion } from 'framer-motion';
 
 const Index = () => {
   const [inputJson, setInputJson] = useState('');
@@ -143,31 +143,51 @@ const Index = () => {
     }
   };
 
+  const containerVariants = {
+    hidden: { opacity: 0 },
+    visible: { 
+      opacity: 1,
+      transition: { 
+        staggerChildren: 0.1
+      }
+    }
+  };
+
+  const itemVariants = {
+    hidden: { opacity: 0, y: 20 },
+    visible: { opacity: 1, y: 0 }
+  };
+
   return (
     <div className="min-h-screen flex flex-col dark">
       <Toaster />
       <Header />
       
       <main className="flex-1 container px-4 py-8">
-        <div className="mx-auto">
-          <section className="mb-8">
-            <h1 className="text-3xl md:text-4xl font-bold mb-2 bg-gradient-to-r from-primary to-accent bg-clip-text text-transparent">
+        <motion.div 
+          className="mx-auto"
+          initial="hidden"
+          animate="visible"
+          variants={containerVariants}
+        >
+          <motion.section className="mb-8" variants={itemVariants}>
+            <h1 className="text-4xl md:text-5xl font-bold mb-3 bg-gradient-to-r from-primary via-accent to-purple-400 bg-clip-text text-transparent">
               {getPageTitle()}
             </h1>
-            <p className="text-muted-foreground mb-4 text-lg">
+            <p className="text-muted-foreground mb-6 text-lg max-w-3xl mx-auto">
               Professional developer tools to work with JSON and related formats
             </p>
             
             <HeaderAd />
-          </section>
+          </motion.section>
           
-          <div className="grid grid-cols-1 md:grid-cols-12 gap-6">
+          <motion.div className="grid grid-cols-1 md:grid-cols-12 gap-6" variants={itemVariants}>
             <div className="md:col-span-9">
               <ResizablePanelGroup
                 direction="horizontal"
-                className="min-h-[500px] rounded-lg border"
+                className="min-h-[500px] rounded-lg border shadow-lg"
               >
-                <ResizablePanel defaultSize={50} minSize={30}>
+                <ResizablePanel defaultSize={43} minSize={30}>
                   <div className="p-4 h-full">
                     <h3 className="text-lg font-medium mb-3">Input</h3>
                     <JsonInput value={inputJson} onChange={setInputJson} />
@@ -183,12 +203,13 @@ const Index = () => {
                         onMinify={handleMinify}
                         outputJson={outputJson}
                         isJsonValid={isJsonValid}
+                        vertical={true}
                       />
                     </div>
                   </div>
                 </ResizableHandle>
                 
-                <ResizablePanel defaultSize={50} minSize={30}>
+                <ResizablePanel defaultSize={43} minSize={30}>
                   <div className="p-4 h-full flex flex-col">
                     <h3 className="text-lg font-medium mb-3">Result</h3>
                     
@@ -211,83 +232,113 @@ const Index = () => {
             <div className="md:col-span-3">
               <SidebarAd />
               
-              <div className="bg-card rounded-lg p-4 border border-border mb-6">
+              <motion.div 
+                className="bg-card rounded-lg p-4 border border-border mb-6 card-hover"
+                whileHover={{ scale: 1.02 }}
+                transition={{ type: "spring", stiffness: 400, damping: 17 }}
+              >
                 <h3 className="text-base font-medium mb-3">Developer Tools</h3>
                 <ul className="text-base space-y-3 text-muted-foreground">
                   <li className={`hover:text-foreground transition-colors ${location.pathname === '/json-formatter' || location.pathname === '/' ? 'font-medium text-foreground' : ''}`}>
-                    <Link to="/json-formatter">JSON Formatter</Link>
+                    <Link to="/json-formatter" className="hover-lift block py-1">JSON Formatter</Link>
                   </li>
                   <li className={`hover:text-foreground transition-colors ${location.pathname === '/jwt-decoder' ? 'font-medium text-foreground' : ''}`}>
-                    <Link to="/jwt-decoder">JWT Decoder</Link>
+                    <Link to="/jwt-decoder" className="hover-lift block py-1">JWT Decoder</Link>
                   </li>
                   <li className={`hover:text-foreground transition-colors ${location.pathname === '/base64' ? 'font-medium text-foreground' : ''}`}>
-                    <Link to="/base64">Base64</Link>
+                    <Link to="/base64" className="hover-lift block py-1">Base64</Link>
                   </li>
                   <li className={`hover:text-foreground transition-colors ${location.pathname === '/json-to-xml' ? 'font-medium text-foreground' : ''}`}>
-                    <Link to="/json-to-xml">JSON to XML</Link>
+                    <Link to="/json-to-xml" className="hover-lift block py-1">JSON to XML</Link>
                   </li>
                   <li className={`hover:text-foreground transition-colors ${location.pathname === '/json-diff' ? 'font-medium text-foreground' : ''}`}>
-                    <Link to="/json-diff">JSON Diff Viewer</Link>
+                    <Link to="/json-diff" className="hover-lift block py-1">JSON Diff Viewer</Link>
                   </li>
                   <li className={`hover:text-foreground transition-colors ${location.pathname === '/yaml-json' ? 'font-medium text-foreground' : ''}`}>
-                    <Link to="/yaml-json">YAML ⇄ JSON</Link>
+                    <Link to="/yaml-json" className="hover-lift block py-1">YAML ⇄ JSON</Link>
                   </li>
                   <li className={`hover:text-foreground transition-colors ${location.pathname === '/json-query' ? 'font-medium text-foreground' : ''}`}>
-                    <Link to="/json-query">JSON Query</Link>
+                    <Link to="/json-query" className="hover-lift block py-1">JSON Query</Link>
                   </li>
                 </ul>
-              </div>
+              </motion.div>
             </div>
-          </div>
+          </motion.div>
           
           {/* Additional Ad above About section */}
-          <div className="mt-8 mb-6">
+          <motion.div 
+            className="mt-8 mb-6" 
+            variants={itemVariants}
+            whileHover={{ scale: 1.02 }}
+            transition={{ type: "spring", stiffness: 400, damping: 17 }}
+          >
             <Card className="w-full overflow-hidden border-dashed border-primary/30 hover:border-primary/70 transition-all duration-300 bg-muted/10">
               <CardContent className="p-4">
                 <div className="flex items-center justify-between">
                   <div className="flex items-center gap-2">
-                    <BadgeDollarSign className="h-5 w-5 text-primary" />
+                    <BadgeDollarSign className="h-5 w-5 text-primary animate-pulse-slow" />
                     <span className="font-medium text-sm text-primary">Premium DevxTools Pro Suite</span>
                   </div>
-                  <button className="text-xs bg-primary/90 hover:bg-primary text-white px-3 py-1 rounded-full transition-colors">
+                  <motion.button 
+                    className="text-xs bg-primary/90 hover:bg-primary text-white px-3 py-1 rounded-full transition-colors"
+                    whileTap={{ scale: 0.95 }}
+                  >
                     Get Pro Access
-                  </button>
+                  </motion.button>
                 </div>
                 <p className="text-xs text-muted-foreground mt-2">
                   Unlock advanced features: JSON Schema validation, API access, diff viewer, team sharing, and more.
                 </p>
               </CardContent>
             </Card>
-          </div>
+          </motion.div>
           
-          <section className="mt-4 bg-card rounded-lg p-6 border border-border">
-            <h2 className="text-xl font-semibold mb-4">About DevxTools</h2>
+          <motion.section 
+            className="mt-4 bg-card rounded-lg p-6 border border-border shadow-sm"
+            variants={itemVariants}
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ delay: 0.3 }}
+          >
+            <h2 className="text-xl font-semibold mb-4 bg-gradient-to-r from-primary to-purple-400 bg-clip-text text-transparent">About DevxTools</h2>
             <p className="mb-4 text-base">
               DevxTools provides professional-grade utilities for developers. Our tools help you 
               quickly work with JSON, JWT tokens, Base64, YAML, and more with a clean interface.
             </p>
             <div className="grid grid-cols-1 md:grid-cols-3 gap-4 text-base">
-              <div className="bg-muted/30 p-4 rounded-md">
+              <motion.div 
+                className="bg-muted/30 p-4 rounded-md hover:bg-muted/50 transition-colors"
+                whileHover={{ y: -4 }}
+                transition={{ type: "spring", stiffness: 400, damping: 10 }}
+              >
                 <h3 className="font-medium mb-2">Format & Validate</h3>
                 <p className="text-muted-foreground">
                   Make your data beautiful with proper formatting and validation.
                 </p>
-              </div>
-              <div className="bg-muted/30 p-4 rounded-md">
+              </motion.div>
+              <motion.div 
+                className="bg-muted/30 p-4 rounded-md hover:bg-muted/50 transition-colors"
+                whileHover={{ y: -4 }}
+                transition={{ type: "spring", stiffness: 400, damping: 10 }}
+              >
                 <h3 className="font-medium mb-2">Convert</h3>
                 <p className="text-muted-foreground">
                   Transform between JSON, XML, YAML, and other formats easily.
                 </p>
-              </div>
-              <div className="bg-muted/30 p-4 rounded-md">
+              </motion.div>
+              <motion.div 
+                className="bg-muted/30 p-4 rounded-md hover:bg-muted/50 transition-colors"
+                whileHover={{ y: -4 }}
+                transition={{ type: "spring", stiffness: 400, damping: 10 }}
+              >
                 <h3 className="font-medium mb-2">Analyze</h3>
                 <p className="text-muted-foreground">
                   Compare differences and query your data with powerful tools.
                 </p>
-              </div>
+              </motion.div>
             </div>
-          </section>
-        </div>
+          </motion.section>
+        </motion.div>
       </main>
       
       <Footer />
