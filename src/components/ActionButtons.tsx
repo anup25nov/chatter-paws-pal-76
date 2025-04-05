@@ -5,16 +5,22 @@ import { useState } from 'react';
 import { useToast } from '@/hooks/use-toast';
 import { motion } from 'framer-motion';
 
-interface ActionButtonsProps {
-  onPrettyPrint: () => void;
-  onValidate: () => void;
-  onMinify?: () => void;
-  outputJson: string;
-  isJsonValid: boolean;
-  primaryButtonText?: string;
-  vertical?: boolean;
-}
-
+/**
+ * ActionButtons Component
+ * 
+ * Provides a set of action buttons for JSON operations with animations and responsive layout.
+ * Supports vertical and horizontal layouts, and includes copy-to-clipboard functionality.
+ *
+ * @param {Object} props - Component properties
+ * @param {Function} props.onPrettyPrint - Handler for pretty print button click
+ * @param {Function} props.onValidate - Handler for validation button click
+ * @param {Function} [props.onMinify] - Optional handler for minify button click
+ * @param {string} props.outputJson - The JSON string to copy to clipboard
+ * @param {boolean} props.isJsonValid - Whether the JSON is valid (affects button states)
+ * @param {string} [props.primaryButtonText="Pretty Print"] - Text for the primary action button
+ * @param {boolean} [props.vertical=false] - Whether to display buttons vertically
+ * @returns {JSX.Element} The rendered ActionButtons component
+ */
 const ActionButtons = ({ 
   onPrettyPrint, 
   onValidate, 
@@ -24,9 +30,14 @@ const ActionButtons = ({
   primaryButtonText = "Pretty Print",
   vertical = false
 }: ActionButtonsProps) => {
+  // State to track if content has been copied to clipboard
   const [copied, setCopied] = useState(false);
   const { toast } = useToast();
 
+  /**
+   * Copies the output JSON to clipboard
+   * Shows appropriate toast notifications for success or failure
+   */
   const copyToClipboard = async () => {
     if (!outputJson) {
       toast({
@@ -45,6 +56,7 @@ const ActionButtons = ({
         description: "Output copied to clipboard"
       });
       
+      // Reset copied state after 2 seconds
       setTimeout(() => setCopied(false), 2000);
     } catch (err) {
       toast({
@@ -55,6 +67,7 @@ const ActionButtons = ({
     }
   };
 
+  // Animation variants for button interactions
   const buttonVariants = {
     initial: { scale: 1 },
     hover: { scale: 1.05 },
@@ -63,6 +76,7 @@ const ActionButtons = ({
 
   return (
     <div className={`flex ${vertical ? 'flex-col' : 'flex-wrap'} gap-3`}>
+      {/* Primary action button (Pretty Print or custom) */}
       <motion.div
         variants={buttonVariants}
         initial="initial"
@@ -80,6 +94,7 @@ const ActionButtons = ({
         </Button>
       </motion.div>
       
+      {/* Validate button */}
       <motion.div
         variants={buttonVariants}
         initial="initial"
@@ -97,6 +112,7 @@ const ActionButtons = ({
         </Button>
       </motion.div>
       
+      {/* Conditional Minify button */}
       {onMinify && primaryButtonText !== "Minify JSON" && (
         <motion.div
           variants={buttonVariants}
@@ -117,6 +133,7 @@ const ActionButtons = ({
         </motion.div>
       )}
       
+      {/* Copy to clipboard button */}
       <motion.div
         variants={buttonVariants}
         initial="initial"
@@ -146,5 +163,18 @@ const ActionButtons = ({
     </div>
   );
 };
+
+/**
+ * TypeScript interface for ActionButtons props
+ */
+interface ActionButtonsProps {
+  onPrettyPrint: () => void;
+  onValidate: () => void;
+  onMinify?: () => void;
+  outputJson: string;
+  isJsonValid: boolean;
+  primaryButtonText?: string;
+  vertical?: boolean;
+}
 
 export default ActionButtons;

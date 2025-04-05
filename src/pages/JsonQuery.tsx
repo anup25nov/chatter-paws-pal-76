@@ -15,7 +15,14 @@ import { Search, Info } from 'lucide-react';
 import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
 
+/**
+ * JSON Query Component
+ * 
+ * Allows users to query and extract specific data from JSON using path expressions.
+ * Supports both JavaScript notation and JSONPath-like syntax.
+ */
 const JsonQuery = () => {
+  // State management for JSON input, query, results and validation
   const [jsonInput, setJsonInput] = useState('');
   const [queryInput, setQueryInput] = useState('');
   const [queryResult, setQueryResult] = useState('');
@@ -23,6 +30,10 @@ const JsonQuery = () => {
   const [isJsonValid, setIsJsonValid] = useState(false);
   const { toast } = useToast();
 
+  /**
+   * Validates the JSON input and updates state accordingly
+   * @param {string} json - The JSON string to validate
+   */
   const validateJsonInput = (json: string) => {
     if (!json.trim()) {
       setIsJsonValid(false);
@@ -30,16 +41,25 @@ const JsonQuery = () => {
       return;
     }
     
-    const result = validateJson(json);
+    // Call the validateJson utility and handle the result
+    const result: JsonResult = validateJson(json);
     setIsJsonValid(result.success);
     setError(result.success ? undefined : result.error);
   };
 
+  /**
+   * Handles changes to the JSON input field
+   * @param {string} value - New JSON input value
+   */
   const handleJsonInputChange = (value: string) => {
     setJsonInput(value);
     validateJsonInput(value);
   };
 
+  /**
+   * Executes the query against the JSON data
+   * Handles different query syntaxes and shows appropriate feedback
+   */
   const executeQuery = () => {
     if (!isJsonValid) {
       toast({
@@ -60,19 +80,21 @@ const JsonQuery = () => {
     }
 
     try {
+      // Parse the JSON data
       const jsonObj = JSON.parse(jsonInput);
       let result: any;
       
-      // Handle different query types
+      // Handle different query types based on syntax
       if (queryInput.startsWith('$')) {
-        // JSONPath-like query (simplified implementation)
+        // JSONPath-like query implementation
         result = evaluateJsonPath(jsonObj, queryInput);
       } else if (queryInput.includes('.') || queryInput.includes('[')) {
         // JavaScript notation
         try {
-          // Create a safe evaluation function
+          // Create a safe evaluation function to access nested properties
           const evalInContext = (obj: any, expr: string) => {
             try {
+              // Using Function constructor with strict mode for safer execution
               return Function('obj', `"use strict"; try { return obj${expr.startsWith('.') ? expr : '.' + expr}; } catch(e) { return null; }`)
                 (obj);
             } catch (e) {
@@ -85,10 +107,11 @@ const JsonQuery = () => {
           throw new Error("Invalid query expression");
         }
       } else {
-        // Direct property access
+        // Direct property access for top-level properties
         result = jsonObj[queryInput];
       }
       
+      // Format and display the results
       if (result === undefined) {
         setQueryResult('No matching results found');
       } else {
@@ -110,7 +133,14 @@ const JsonQuery = () => {
     }
   };
 
-  // Simple JSONPath-like evaluator (very limited implementation)
+  /**
+   * Simple JSONPath-like evaluator 
+   * Supports basic path navigation with dot notation and array indexing
+   * 
+   * @param {any} obj - The JSON object to query
+   * @param {string} path - The JSONPath expression
+   * @returns {any} The result of the query or undefined if not found
+   */
   const evaluateJsonPath = (obj: any, path: string) => {
     // Handle basic JSONPath expressions
     if (path === '$') return obj;
@@ -119,6 +149,7 @@ const JsonQuery = () => {
       const segments = path.substring(2).split('.');
       let current = obj;
       
+      // Navigate through each path segment
       for (const segment of segments) {
         if (segment.includes('[') && segment.includes(']')) {
           // Array access like $.items[0]
@@ -133,9 +164,11 @@ const JsonQuery = () => {
             return undefined;
           }
         } else {
+          // Simple property access
           current = current[segment];
         }
         
+        // Return undefined if the path doesn't exist
         if (current === undefined) return undefined;
       }
       
@@ -145,6 +178,9 @@ const JsonQuery = () => {
     return undefined;
   };
 
+  /**
+   * Validates the current JSON input and displays appropriate feedback
+   */
   const validateJson = () => {
     validateJsonInput(jsonInput);
     
@@ -181,6 +217,7 @@ const JsonQuery = () => {
           
           <div className="grid grid-cols-1 md:grid-cols-12 gap-6">
             <div className="md:col-span-9">
+              {/* Query input section with instructions */}
               <div className="bg-card rounded-lg border border-border p-4 mb-4">
                 <div className="flex items-center mb-2">
                   <h3 className="text-lg font-medium">Query Expression</h3>
@@ -208,6 +245,7 @@ const JsonQuery = () => {
                 </div>
               </div>
               
+              {/* Resizable panels for JSON input and query results */}
               <ResizablePanelGroup
                 direction="horizontal"
                 className="min-h-[500px] rounded-lg border"
@@ -246,6 +284,7 @@ const JsonQuery = () => {
               </ResizablePanelGroup>
             </div>
             
+            {/* Sidebar with tools links and ads */}
             <div className="md:col-span-3">
               <SidebarAd />
               
@@ -278,6 +317,7 @@ const JsonQuery = () => {
             </div>
           </div>
           
+          {/* About section with feature highlights */}
           <section className="mt-8 bg-card rounded-lg p-6 border border-border">
             <h2 className="text-xl font-semibold mb-4">About JSON Query</h2>
             <p className="mb-4 text-base">

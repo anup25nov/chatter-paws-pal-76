@@ -1,4 +1,5 @@
 
+/* Root container styling */
 #root {
   max-width: 1280px;
   margin: 0 auto;
@@ -6,6 +7,7 @@
   text-align: center;
 }
 
+/* Logo styling and animations */
 .logo {
   height: 6em;
   padding: 1.5em;
@@ -21,6 +23,7 @@
   filter: drop-shadow(0 0 2em #61dafbaa);
 }
 
+/* Logo spin animation */
 @keyframes logo-spin {
   from {
     transform: rotate(0deg);
@@ -30,13 +33,20 @@
   }
 }
 
+/* Apply logo spin animation if reduced motion is not preferred */
 @media (prefers-reduced-motion: no-preference) {
   a:nth-of-type(2) .logo {
     animation: logo-spin infinite 20s linear;
   }
 }
 
-/* Custom animations */
+/* ============= CUSTOM ANIMATIONS ============= */
+
+/**
+ * Fade In Animation
+ * Smoothly transitions elements from invisible to visible 
+ * with a slight opacity change
+ */
 .fade-in {
   animation: fadeIn 0.5s ease-in-out;
 }
@@ -46,6 +56,11 @@
   to { opacity: 1; }
 }
 
+/**
+ * Slide In Animation
+ * Transitions elements from slightly below their position 
+ * with a fade effect
+ */
 .slide-in {
   animation: slideIn 0.5s ease-out;
 }
@@ -55,6 +70,11 @@
   to { transform: translateY(0); opacity: 1; }
 }
 
+/**
+ * Subtle Bounce Animation
+ * Creates a gentle floating effect for elements
+ * Good for drawing attention to important UI elements
+ */
 .bounce-subtle {
   animation: bounceSlight 2s infinite;
 }
@@ -64,6 +84,11 @@
   50% { transform: translateY(-4px); }
 }
 
+/**
+ * Hover Lift Effect
+ * Applies a slight upward movement on hover
+ * Creates a satisfying interactive effect for clickable elements
+ */
 .hover-lift {
   transition: transform 0.2s ease-out;
 }
@@ -72,6 +97,11 @@
   transform: translateY(-3px);
 }
 
+/**
+ * Gradient Text Effect
+ * Applies a colorful gradient to text
+ * Used for headings and important UI elements
+ */
 .gradient-text {
   background-image: linear-gradient(90deg, #9b6bff, #ce4da4);
   -webkit-background-clip: text;
